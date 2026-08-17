@@ -1,9 +1,36 @@
-from sqlalchemy import Column, BigInteger, Text
+from sqlalchemy import Column, Integer, String, Text
+from pgvector.sqlalchemy import Vector
+
 from app.database import Base
-from app.embeddings import create_embedding
+
 
 class Document(Base):
     __tablename__ = "documents"
-    id = Column(BigInteger, primary_key=True, index=True)
-    content = Column(Text, nullable=False)
-    embedding = Column(Text, nullable=False)
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
+
+    content = Column(
+        Text,
+        nullable=False,
+    )
+
+    category = Column(
+        String(100),
+        nullable=True,
+        index=True,
+    )
+
+    source = Column(
+        String(255),
+        nullable=True,
+        index=True,
+    )
+
+    embedding = Column(
+        Vector(384),
+        nullable=True,
+    )

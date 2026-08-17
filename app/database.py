@@ -1,16 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
-from dotenv import load_dotenv
-import os
-# from config import Config
 
-load_dotenv()
+from app.core.config import settings
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL is None:
-    raise RuntimeError(
-    "DATABASE_URL environment variable is missing."
-)
+DATABASE_URL = settings.database_url
 
 DATABASE_URL = DATABASE_URL.replace(
         "postgresql://",
@@ -42,3 +35,5 @@ async def get_db():
     finally:
         await db.close()
 
+async def close_database():
+    await engine.dispose()
