@@ -1,13 +1,18 @@
-# Semantic Search API
+# Semantic Search API & UI
 
-A FastAPI application that implements semantic search utilizing modern transformer-based embeddings and PostgreSQL's `pgvector` extension with HNSW indexing.
+A complete semantic search application featuring a FastAPI backend and a Streamlit frontend. It utilizes modern transformer-based embeddings and PostgreSQL's `pgvector` extension with HNSW indexing for high-performance vector search.
 
 ```
+                         ┌─────────────────────┐
+                         │   Streamlit (UI)    │
+                         └──────────┬──────────┘
+                                    │ HTTP
+                     POST /documents│ POST /documents/search
+                                    ↓
                          ┌─────────────────────┐
                          │      FastAPI        │
                          └──────────┬──────────┘
                                     │
-                     POST /documents│
                                     ↓
                          ┌─────────────────────┐
                          │ BGE-small-en-v1.5   │
@@ -23,34 +28,29 @@ A FastAPI application that implements semantic search utilizing modern transform
                          └──────────┬──────────┘
                                     │
                                     ↓
-                               pgvector
+                                pgvector
                                     │
                                     ↓
                                HNSW index
-                                    │
-                                    ↓
-                          cosine similarity
-                                    │
-                                    ↓
-                            Top-K documents
 ```
 
 ---
 
 ## 🚀 Features
 
+- **Interactive UI**: A user-friendly Streamlit frontend to index new documents and perform semantic searches.
 - **Text Embeddings**: Automatically generates dense vector representations using `BAAI/bge-small-en-v1.5` (384 dimensions) via `sentence-transformers`.
 - **Hybrid Search Capabilities**: Search documents using cosine similarity with additional metadata filters (`category` and `source`).
 - **Optimized Vector Search**: Utilizes PostgreSQL `pgvector` with HNSW (Hierarchical Navigable Small World) index for fast, low-latency nearest-neighbor search.
 - **Asynchronous Stack**: End-to-end async implementation using `FastAPI`, `SQLAlchemy`, and `asyncpg`.
 - **Robust Schema Validation**: Employs Pydantic v2 schemas for strict input validation and responses.
-- **Developer Utilities**: Includes execution plan diagnostics (`EXPLAIN ANALYZE`) for database queries.
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Async API development)
+- **Frontend**: [Streamlit](https://streamlit.io/)
+- **Backend Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Async API development)
 - **Database**: PostgreSQL with [pgvector](https://github.com/pgvector/pgvector)
 - **ORM / Driver**: [SQLAlchemy 2.0](https://www.sqlalchemy.org/) (Async) & [asyncpg](https://github.com/MagicStack/asyncpg)
 - **NLP / Embedding Model**: [Sentence-Transformers](https://sbert.net/) (`BAAI/bge-small-en-v1.5`)
@@ -83,6 +83,9 @@ A FastAPI application that implements semantic search utilizing modern transform
 │   ├── schemas.py                   # Pydantic validation schemas
 │   └── scripts/
 │       └── inspect_vector_search.py # Diagnoses explain plans & similarity
+├── ui/                              # Streamlit Frontend
+│   ├── api.py                       # API client for interacting with FastAPI
+│   └── main.py                      # Streamlit application UI
 ├── tests/                           # Pytest suites
 │   ├── conftest.py
 │   ├── test_document_service.py
@@ -107,6 +110,7 @@ Create a `.env` file in the root directory:
 DATABASE_URL=postgresql://<username>:<password>@<host>:<port>/<dbname>
 HNSW_EF_SEARCH=40
 HF_TOKEN=your_hugging_face_token_if_needed
+API_BASE_URL=http://127.0.0.1:8000
 ```
 
 ### 3. Install Dependencies
@@ -130,14 +134,27 @@ uv sync
 
 ## 🖥️ Running the Application
 
-Start the FastAPI application locally using Uvicorn:
+You need to run both the FastAPI backend and the Streamlit frontend.
+
+### 1. Start the FastAPI Backend
+
+Run the backend server locally using Uvicorn:
 
 ```bash
 uvicorn app.main:app --reload
 ```
-Once started, the interactive documentation is available at:
+The API interactive documentation will be available at:
 - **Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
 - **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+### 2. Start the Streamlit Frontend
+
+Open a new terminal, activate the virtual environment, and run:
+
+```bash
+uv run streamlit run ui/main.py
+```
+The interactive UI will open in your browser, typically at [http://localhost:8501](http://localhost:8501).
 
 ---
 
